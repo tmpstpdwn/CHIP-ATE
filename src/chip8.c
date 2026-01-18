@@ -18,8 +18,8 @@ static uint16_t index_;
 static uint16_t pc;
 static uint16_t stack[16];
 static uint8_t sp;
-static uint8_t delay_timer;
-static uint8_t sound_timer;
+uint8_t delay_timer;
+uint8_t sound_timer;
 static uint16_t opcode;
 
 // Fn tables
@@ -412,26 +412,27 @@ void OP_DXYN(void) {
   uint8_t y_pos = registers[Vy] % VIDEO_HEIGHT;
 
   registers[0xF] = 0;
-
   for (unsigned int row = 0; row < height; row++) {
     uint8_t sprite_byte = memory[index_ + row];
-
+  
     for (unsigned int col = 0; col < 8; col++) {
-      uint8_t sprite_pixel = sprite_byte & (0x80u >> col);
+      if ((sprite_byte & (0x80u >> col))) {
+        uint16_t x_coord = x_pos + col;
+        uint16_t y_coord = y_pos + row;
 
-      uint8_t x_coord = (x_pos + col) % VIDEO_WIDTH;
-      uint8_t y_coord = (y_pos + row) % VIDEO_HEIGHT;
-      uint8_t *screen_pixel = &video[y_coord * VIDEO_WIDTH + x_coord];
+        if (x_coord < VIDEO_WIDTH && y_coord < VIDEO_HEIGHT) {
+          uint8_t *screen_pixel = &video[y_coord * VIDEO_WIDTH + x_coord];
 
-      if (sprite_pixel) {
-        if (*screen_pixel) {
-          registers[0xF] = 1;
+          if (*screen_pixel) {
+            registers[0xF] = 1; // Collision
+          }
+          *screen_pixel ^= 0xFF;
         }
-        *screen_pixel ^= 0xFF;
       }
-
     }
+
   }
+
 }
 
 void OP_EX9E(void) {
@@ -531,9 +532,6 @@ void chip8_cycle(void) {
   pc += 2;
 
   table[(opcode & 0xF000u) >> 12u]();
-
-  if (delay_timer > 0) delay_timer--;
-  if (sound_timer > 0) sound_timer--;
 }
 
 /* [[END]] */

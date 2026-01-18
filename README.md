@@ -4,7 +4,6 @@ A simple, functional CHIP-8 emulator written by me as a learning project. It sup
 
 > ⚠️ **Note**:
 > - This is strictly a standard CHIP-8 implementation.
-> - This implementation does not support audio output.
 
 ---
 

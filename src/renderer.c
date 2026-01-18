@@ -4,12 +4,14 @@
 #include "renderer.h"
 #include <raylib.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 /* [[VAR DCL - DEF]] */
 
 static const int screen_width = VIDEO_WIDTH * SCALE;
 static const int screen_height = VIDEO_HEIGHT * SCALE;
 static const char *title = "Chip-8";
+static Sound beep_sound;
 
 static const int key_map[16] = {
     KEY_X,     // 0
@@ -33,7 +35,9 @@ static const int key_map[16] = {
 /* [[FN DCL]] */
 
 void renderer_init(void);
-void renderer_draw(const uint8_t *video);
+static void renderer_init_audio(void);
+double renderer_draw(const uint8_t *video);
+void renderer_audio_update(uint8_t sound_timer);
 int renderer_input(uint8_t *keypad);
 
 /* [[FN DEF]] */
@@ -42,9 +46,34 @@ void renderer_init(void) {
   InitWindow(screen_width, screen_height, title);
   SetExitKey(KEY_ESCAPE);
   SetTargetFPS(FPS);
+  renderer_init_audio();
 }
 
-void renderer_draw(const uint8_t *video) {
+static void renderer_init_audio(void) {
+  InitAudioDevice();
+
+  int samples = 44100 * 0.5f; // 0.5 seconds of audio
+  float *data = (float *)malloc(samples * sizeof(float));
+
+  int period = 44100 / 440; // Samples per wave cycle (440Hz)
+  for (int i = 0; i < samples; i++) {
+    data[i] = ((i / (period / 2)) % 2 == 0) ? 0.2f : -0.2f; // 0.2f volume
+  }
+
+  Wave wave = {
+    .frameCount = samples,
+    .sampleRate = 44100,
+    .sampleSize = 32,
+    .channels = 1,
+    .data = data
+  };
+
+  beep_sound = LoadSoundFromWave(wave);
+  
+  free(data); 
+}
+
+double renderer_draw(const uint8_t *video) {
   BeginDrawing();
   ClearBackground(BLACK);
   
@@ -58,6 +87,19 @@ void renderer_draw(const uint8_t *video) {
   }
 
   EndDrawing();
+  return GetFrameTime();
+}
+
+void renderer_audio_update(uint8_t sound_timer) {
+  if (sound_timer > 0) {
+    if (!IsSoundPlaying(beep_sound)) {
+      PlaySound(beep_sound);
+    }
+  } else {
+    if (IsSoundPlaying(beep_sound)) {
+      StopSound(beep_sound);
+    }
+  }
 }
 
 int renderer_input(uint8_t *keypad) {

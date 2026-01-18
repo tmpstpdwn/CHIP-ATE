@@ -22,6 +22,8 @@
 #define TF_MAX 0x65
 
 // Vars
+extern uint8_t delay_timer;
+extern uint8_t sound_timer;
 extern uint8_t video[VIDEO_HEIGHT * VIDEO_WIDTH];
 extern uint8_t keypad[16];
 
