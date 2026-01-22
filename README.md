@@ -2,9 +2,6 @@
 
 A simple, functional CHIP-8 emulator written by me as a learning project. It supports most CHIP-8 programs.
 
-> ⚠️ **Note**:
-> - This is strictly a standard CHIP-8 implementation.
-
 ---
 
 ## Screenshots
@@ -39,8 +36,10 @@ This emulator uses [raylib](https://www.raylib.com/) for rendering. Make sure it
 2. Run the emulator with a ROM:
 
     ```bash
-    ./chip8 path/to/rom.ch8
+    ./chip8 path/to/rom.ch8 1000
     ```
+    Here `1000` denotes 1KHz for the CHIP-8 clock.
+    The clock value is optional and if not given uses a default value.
 
 3. Keyboard controls:
 

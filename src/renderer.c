@@ -38,7 +38,7 @@ void renderer_init(void);
 static void renderer_init_audio(void);
 double renderer_draw(const uint8_t *video);
 void renderer_audio_update(uint8_t sound_timer);
-int renderer_input(uint8_t *keypad);
+bool renderer_input(uint8_t *keypad);
 
 /* [[FN DEF]] */
 
@@ -52,7 +52,7 @@ void renderer_init(void) {
 static void renderer_init_audio(void) {
   InitAudioDevice();
 
-  int samples = 44100 * 0.5f; // 0.5 seconds of audio
+  int samples = 44100 * 0.5f; // 0.5 seconds of the audio
   float *data = (float *)malloc(samples * sizeof(float));
 
   int period = 44100 / 440; // Samples per wave cycle (440Hz)
@@ -102,12 +102,12 @@ void renderer_audio_update(uint8_t sound_timer) {
   }
 }
 
-int renderer_input(uint8_t *keypad) {
-  if (WindowShouldClose()) return 0;
+bool renderer_input(uint8_t *keypad) {
+  if (WindowShouldClose()) return false;
   for (int i = 0; i < 16; i++) {
     keypad[i] = IsKeyDown(key_map[i]);
   }
-  return 1;
+  return true;
 }
 
 /* [[END]] */

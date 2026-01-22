@@ -6,15 +6,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// Default clock speed.
 #define CLOCK 400
 
 /* [[VAR DCL - DEF]] */
 
-int run = 1;
-double cpu_accumulator = 0.0;
-double timer_accumulator = 0.0;
-double time_per_cpu_cycle; 
-const double time_per_timer_tick = 1.0 / 60.0;
+static int clock_speed = CLOCK; // CHIP-8 clock.
+
+// Accumulator logic is used to use emulate the CHIP-8 clock.
+static double cpu_accumulator = 0.0;
+static double timer_accumulator = 0.0;
+static double time_per_cpu_cycle; 
+static const double time_per_timer_tick = 1.0 / 60.0; // 60Hz clock for both sound, delay timer.
+
+static char *rom_path = NULL; // path to .ch8 ROM.
+
+static bool run = true; // Is the game running.
 
 /* [[MAIN]] */
 
@@ -24,25 +31,20 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    char *rom_path = NULL;
-    int clock_speed;
-
-    // Args check
+    // Get rom path and clock (if given).
+    rom_path = argv[1];
     if (argc >= 3) {
         clock_speed = atoi(argv[2]);
-        rom_path = argv[1];
         if (!clock_speed) clock_speed = CLOCK;
-    } else {
-        rom_path = argv[1];
-        clock_speed = CLOCK;
     }
 
     time_per_cpu_cycle = 1.0 / clock_speed;
 
+    // Core init.
     chip8_init(rom_path);
     renderer_init();
 
-    double dt = 0;
+    double dt = 0; // Delta time.
 
     while (run) {
         cpu_accumulator += dt;

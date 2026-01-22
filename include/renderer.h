@@ -3,7 +3,8 @@
 #define RENDERER_H
 
 // Includes
-#include "stdint.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 // Defines
 #define SCALE 10
@@ -13,6 +14,6 @@
 void renderer_init(void);
 double renderer_draw(const uint8_t *video);
 void renderer_audio_update(uint8_t sound_timer);
-int renderer_input(uint8_t *keypad);
+bool renderer_input(uint8_t *keypad);
 
 #endif
